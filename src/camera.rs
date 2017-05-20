@@ -50,12 +50,12 @@ impl CanBeCamera for DefaultCamera {
 }
 
 impl CCamera {
-	pub fn new(pos: Vector3D, trg: Vector3D, up: Vector3D) -> CCamera {
+	pub fn new(pos: Vector3D, trg: Vector3D, up: Vector3D, w: u32, h: u32) -> CCamera {
 		CCamera{ target:       trg,
 			     up:           up,
 			     player:       Box::new(Rc::new( DefaultCamera::new() )),
 			     angle:        Point::new(0.0, 0.0),
-			     mousePos:     Point::new(800.0 / 2.0, 600.0 / 2.0), 
+			     mousePos:     Point::new(w as f32 / 2.0, h as f32 / 2.0), 
 			     shift:        Vector3D::new(0.0, 0.0, 0.0),
 			     dist:         2.0 }
 	}
@@ -86,9 +86,6 @@ impl CCamera {
 				self.angle += delta / 20.0;
 				if self.angle.y >  90.0 { self.angle.y =  90.0; }
 				if self.angle.y < -90.0 { self.angle.y = -90.0; }
-
-				display.get_window().unwrap().set_cursor_position((800 / 2) as i32, (600 / 2) as i32);
-				self.mousePos = Point::new((800.0 / 2.0), (600.0 / 2.0));
 			}
 			glium::glutin::Event::MouseWheel(delta, display) => match delta {
     			glium::glutin::MouseScrollDelta::LineDelta(x, y)  => {

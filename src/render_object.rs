@@ -12,27 +12,10 @@ use glium::backend::glutin_backend::GlutinFacade;
 use glium::{DisplayBuild, Surface};
 use glium::framebuffer::MultiOutputFrameBuffer;
 use glium::framebuffer::SimpleFrameBuffer;
-use glium::texture::Texture2d;
-use glium::texture::DepthTexture2d;
-use glium::texture::UncompressedFloatFormat::F32F32F32F32;
-use glium::texture::DepthFormat;
-use glium::texture::MipmapsOption::NoMipmap;
 use std::io;
 use std::rc::Rc;
 use std::io::prelude::*;
 use std::fs::File;
-
-pub struct Render<'a> {
-	pub pos_texture:       &'a Texture2d,
-	pub norm_texture:      &'a Texture2d,
-	pub text_texture:      &'a Texture2d,
-
-	pub gbuffer:           MultiOutputFrameBuffer<'a>,
-	pub light_buffer:       SimpleFrameBuffer<'a>,
-
-	pub depthtexture:      &'a DepthTexture2d,
-	pub light_texture:     &'a Texture2d,
-}
 
 pub struct CRenderObject {
 	pub vertex_buffer: glium::VertexBuffer<Vertex>,

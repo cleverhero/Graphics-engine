@@ -22,6 +22,7 @@ mod game;
 mod viewer;
 mod types;
 mod text;
+mod render;
 
 use math::Vertex;
 use math::Vector3D;

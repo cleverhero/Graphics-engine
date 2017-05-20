@@ -13,7 +13,7 @@ use light::CDirectionLight;
 use shell::CShell;
 use pool::Pool;
 use game_object::CGameObject;
-use render_object::Render;
+use render::Render;
 use models::CModel;
 use math::Vertex;
 use math::VertexPT;
@@ -64,7 +64,8 @@ impl CWorld {
 		let mut PerspectiveMatrix = Matrix4D::PerspectiveMatrix(60.0f32, winWidth as f32, winHeight as f32, 0.01, 100.0);
 		let mut Camera = CCamera::new( Vector3D::new(0.0, -0.3, 3.0),
 									   Vector3D::new(0.0,  0.0, 1.0),
-									   Vector3D::new(0.0,  1.0, 0.0) );
+									   Vector3D::new(0.0,  1.0, 0.0),
+									   winWidth, winHeight );
 
 		let texture = Rc::new( CTexture::load(display, "images/Wall.jpg") );
 		let block = Rc::new( CTexture::load(display, "images/Block.jpg") );
@@ -219,13 +220,17 @@ impl CWorld {
 	pub fn draw(&self, display: &GlutinFacade, mut render: &mut Render) {
 		let mut canvas = display.draw();
 
-		render.gbuffer.clear_color_and_depth((0.0, 0.7, 0.933, 0.0), 1.0);
-		render.light_buffer.clear_color_and_depth((0.005, 0.005, 0.005, 0.0), 1.0);
+		let mut gbuffer = render.get_gbuffer(display);
+		let mut light_buffer = render.get_lightbuffer(display);
+
+		gbuffer.clear_color_and_depth((0.0, 0.7, 0.933, 0.0), 1.0);
+		light_buffer.clear_color_and_depth((0.005, 0.005, 0.005, 0.0), 1.0);
 		canvas.clear_color(0.0, 0.0, 0.0, 0.0);
 		
-    	self.create_gbuffer(&mut render.gbuffer);
-    	self.create_lightbuffer(display, &mut render.light_buffer, &render.pos_texture, &render.norm_texture);
+    	self.create_gbuffer(&mut gbuffer);
+    	self.create_lightbuffer(display, &mut light_buffer, &render.pos_texture, &render.norm_texture);
 		self.combine_buffers(display, &mut canvas, &render.text_texture, &render.light_texture);
+
 		canvas.finish().unwrap();
 	}
 
