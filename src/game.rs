@@ -3,9 +3,12 @@ extern crate glium;
 use math::Vertex;
 use math::Vector3D;
 use math::Matrix4D;
+use math::Size2;
 use models::CModel;
 use world::CWorld;
 use render::Render;
+use gui::Interface;
+
 
 use glium::{DisplayBuild, Surface};
 use glium::backend::glutin_backend::GlutinFacade;
@@ -24,7 +27,6 @@ struct CWindow {
 }
 
 pub struct CGame {
-	//Interface:
 	Window: CWindow,
 }
 
@@ -48,9 +50,14 @@ impl CGame {
 
     	let mut world = CWorld::new(&self.Window.Facade, width, height);
     	let mut render = Render::new(&self.Window.Facade, width, height);
+    	let mut interface = Interface::new(&self.Window.Facade, Size2{w: width, h: height});
 
 		loop {
-        	world.draw(&self.Window.Facade, &mut render);
+			let mut canvas = self.Window.Facade.draw();
+			canvas.clear_color(0.0, 0.0, 0.0, 0.0);
+
+        	world.draw(&self.Window.Facade, &mut render, &mut canvas);
+        	interface.draw(&self.Window.Facade, &mut canvas);
 			
         	for ev in self.Window.Facade.poll_events() {
         	    match ev {
@@ -61,6 +68,8 @@ impl CGame {
         	}
         	self.Window.Facade.get_window().unwrap().set_cursor_position((width / 2) as i32, (height / 2) as i32);
         	world.update();
+
+			canvas.finish().unwrap();
     	}
 	}
 }

@@ -16,7 +16,6 @@ use game_object::CGameObject;
 use render::Render;
 use models::CModel;
 use math::Vertex;
-use math::VertexPT;
 use std::rc::Rc;
 use glium::index::PrimitiveType;
 use glium::texture::UncompressedFloatFormat::F32F32F32F32;
@@ -26,6 +25,7 @@ use glium::framebuffer::MultiOutputFrameBuffer;
 use glium::framebuffer::SimpleFrameBuffer;
 use glium::texture::Texture2d;
 use viewer::CViewer;
+use math::VertexPT;
 use texture::CTexture;
 use program::CProgram;
 use camera::CanBeCamera;
@@ -51,7 +51,7 @@ pub struct CWorld {
 	wallTexture:       Rc<CTexture>,
 	blockTexture:      Rc<CTexture>,
 
-	OR:                [[f32; 4]; 4],
+	orthomatrix:                [[f32; 4]; 4],
 
 	timer:             SystemTime,
 }
@@ -86,7 +86,7 @@ impl CWorld {
 		let timer = SystemTime::now();
 
 		let ortho_matrix: cgmath::Matrix4<f32> = cgmath::ortho(0.0, 800.0, 0.0, 600.0, -1.0, 1.0);
-    	let OR = Into::<[[f32; 4]; 4]>::into(ortho_matrix);
+    	let orthomatrix = Into::<[[f32; 4]; 4]>::into(ortho_matrix);
 
 		let cube1 = Rc::new( CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &block, &prog) );
 		cube1.set_scale(Vector3D::new(3.0, 3.0, 3.0));
@@ -124,7 +124,7 @@ impl CWorld {
     			 prog2:             prog2.clone(),
     			 lightprog:         lightprog.clone(),
     			 dirlightprog:      dirlightprog.clone(),
-				 OR:                OR,
+				 orthomatrix:       orthomatrix,
 
     			 timer:             timer, }
 	}
@@ -169,7 +169,7 @@ impl CWorld {
 
 	    for light in &self.lights {
 	    	let uniforms = uniform! {
-	    		matrix:            self.OR,
+	    		matrix:            self.orthomatrix,
     			light_pos:         light.pos.as_arr(),
     			light_color:       light.color.as_arr(),
     			light_attenuation: light.attenuation.as_arr(),
@@ -185,7 +185,7 @@ impl CWorld {
 
 		for light in &self.dirlights {
 	    	let uniforms = uniform! {
-	    		matrix:            self.OR,
+	    		matrix:            self.orthomatrix,
     			light_color:       light.color.as_arr(),
     			light_vector:      light.vector.as_arr(),
     			pos_texture:       pos_texture,
@@ -209,7 +209,7 @@ impl CWorld {
     		).unwrap();
 
 	    let uniforms = uniform! {
-            matrix:           self.OR,
+            matrix:           self.orthomatrix,
             decal_texture:    decal_texture,
             lighting_texture: light_texture
         };
@@ -217,21 +217,16 @@ impl CWorld {
 		canvas.draw(&quad_vertex_buffer, &quad_index_buffer, self.prog2.prog_object(), &uniforms, &Default::default()).unwrap();
 	}
 
-	pub fn draw(&self, display: &GlutinFacade, mut render: &mut Render) {
-		let mut canvas = display.draw();
-
+	pub fn draw(&self, display: &GlutinFacade, mut render: &mut Render, mut canvas: &mut glium::Frame) {
 		let mut gbuffer = render.get_gbuffer(display);
 		let mut light_buffer = render.get_lightbuffer(display);
 
 		gbuffer.clear_color_and_depth((0.0, 0.7, 0.933, 0.0), 1.0);
 		light_buffer.clear_color_and_depth((0.005, 0.005, 0.005, 0.0), 1.0);
-		canvas.clear_color(0.0, 0.0, 0.0, 0.0);
 		
     	self.create_gbuffer(&mut gbuffer);
     	self.create_lightbuffer(display, &mut light_buffer, &render.pos_texture, &render.norm_texture);
 		self.combine_buffers(display, &mut canvas, &render.text_texture, &render.light_texture);
-
-		canvas.finish().unwrap();
 	}
 
 	fn create_new_obj(&mut self, display: &GlutinFacade) {
@@ -290,7 +285,7 @@ impl CWorld {
 		self.lights[0].vector = self.Camera.target;
 		self.Viewer.update(t);
 
-		println!("{}", t);
+		println!("{}", 1.0/t);
 
 		for i in (0..self.objs.len()) {
 			let obj_i = &self.objs[i];

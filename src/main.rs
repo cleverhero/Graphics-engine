@@ -20,9 +20,9 @@ mod texture;
 mod program;
 mod game;
 mod viewer;
-mod types;
 mod text;
 mod render;
+mod gui;
 
 use math::Vertex;
 use math::Vector3D;
