@@ -13,11 +13,8 @@ use math::Point;
 use math::Vector3D;
 use std::rc::Rc;
 use models2D::Rect;
-
-#[derive(Debug, Clone, Copy)]
-enum ControllEvent {
-	Click
-}
+use gui::ControllEvent;
+use gui::Controller;
 
 pub struct Button {
 	pub rect: Rect,	
@@ -30,7 +27,7 @@ pub struct Button {
 
 
 impl Button {
-	pub fn new(prog: &Rc<CProgram>, id: i32, x: f32, y: f32, width: f32, height: f32) -> Button {
+	pub fn new(prog: &Rc<CProgram>, x: f32, y: f32, width: f32, height: f32) -> Button {
 		Button {
 			rect: Rect::new(prog, x, y, width, height),
 			is_taped: false,
@@ -40,15 +37,7 @@ impl Button {
 		} 
 	}
 
-	pub fn draw(&mut self, display: &GlutinFacade, canvas: &mut glium::Frame, orthomatrix: &[[f32; 4]; 4]) {
-		if self.is_taped {
-			self.rect.color = self.taped_color;
-		} 
-		else {
-			self.rect.color = self.untaped_color;
-		}
-		self.rect.draw(display, canvas, orthomatrix);
-	}
+	
 
 	pub fn set_taped_color(&mut self, new_color: Vector3D) {
 		self.taped_color = new_color;
@@ -57,21 +46,36 @@ impl Button {
 	pub fn set_untaped_color(&mut self, new_color: Vector3D) {
 		self.untaped_color = new_color;
 	}
+}
 
-	pub fn tap(&mut self, x: f32, y: f32) {
+
+impl Controller for Button {
+	fn tap(&mut self, x: f32, y: f32) {
 		if self.rect.is_inside(x, y) {
 			self.is_taped = true;
 			self.eventsPool.push(ControllEvent::Click);
 		}
 	}
 
-	pub fn untap(&mut self) {
+	fn untap(&mut self) {
 		self.is_taped = false;
 	}
 
-	pub fn get_events(&mut self) -> Vec<ControllEvent> {
+	fn moveTo(&mut self, x: f32, y: f32) { }
+
+	fn get_events(&mut self) -> Vec<ControllEvent> {
 		let tmp = self.eventsPool.clone();
 		self.eventsPool.clear();
 		tmp
+	}
+
+	fn draw(&mut self, display: &GlutinFacade, canvas: &mut glium::Frame, orthomatrix: &[[f32; 4]; 4]) {
+		if self.is_taped {
+			self.rect.color = self.taped_color;
+		} 
+		else {
+			self.rect.color = self.untaped_color;
+		}
+		self.rect.draw(display, canvas, orthomatrix);
 	}
 }

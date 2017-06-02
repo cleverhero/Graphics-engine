@@ -25,6 +25,7 @@ mod render;
 mod gui;
 mod models2D;
 mod button;
+mod trackbar;
 
 use math::Vertex;
 use math::Vector3D;
