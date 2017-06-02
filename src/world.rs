@@ -170,24 +170,25 @@ impl CWorld {
 	    for light in &self.lights {
 	    	let uniforms = uniform! {
 	    		matrix:            self.orthomatrix,
-    			light_pos:         light.pos.as_arr(),
-    			light_color:       light.color.as_arr(),
-    			light_attenuation: light.attenuation.as_arr(),
-    			light_vector:      light.vector.as_arr(),
+    			light_pos:         light.pos,
+    			light_color:       light.color,
+    			light_attenuation: light.attenuation,
+    			light_vector:      light.vector,
     			light_range:       light.range,
     			light_maxradius:   light.maxradius,
     			pos_texture:       pos_texture,
     			norm_texture:      norm_texture,
 			};
-
+			
+			
 			lightbuffer.draw(&quad_vertex_buffer, &quad_index_buffer, self.lightprog.prog_object(), &uniforms, &draw_params).unwrap();
 		}
 
 		for light in &self.dirlights {
-	    	let uniforms = uniform! {
+			let uniforms = uniform! {
 	    		matrix:            self.orthomatrix,
-    			light_color:       light.color.as_arr(),
-    			light_vector:      light.vector.as_arr(),
+    			light_color:       light.color,
+    			light_vector:      light.vector,
     			pos_texture:       pos_texture,
     			norm_texture:      norm_texture,
 			};
@@ -248,7 +249,7 @@ impl CWorld {
 		self.lights.push(CLight::new());
 
         let top = self.lights.len() - 1;
-        self.lights[top].set_pos(self.Camera.GetPos()); 
+        self.lights[top].set_pos(self.Camera.GetPos().as_arr()); 
 	}
 
 	pub fn checkEvents(&mut self, event: &glium::glutin::Event, display: &GlutinFacade) {
@@ -281,11 +282,9 @@ impl CWorld {
 		let t = (diff.subsec_nanos() as f32) / 1000000000.0;
 
 		self.Camera.update(t);
-		self.lights[0].pos = self.Camera.GetPos();
-		self.lights[0].vector = self.Camera.target;
 		self.Viewer.update(t);
 
-		println!("{}", 1.0/t);
+		//println!("{}", 1.0/t);
 
 		for i in (0..self.objs.len()) {
 			let obj_i = &self.objs[i];

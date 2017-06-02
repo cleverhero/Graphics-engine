@@ -1,7 +1,6 @@
 #version 330
 
-uniform mat4 perspective_matrix;
-uniform mat4 view_matrix;
+uniform mat4 matrix;
 uniform mat4 model_matrix;
 
 in vec3 position;
@@ -16,5 +15,5 @@ void main() {
     frag_position = (model_matrix * vec4(position, 1.0)).xyz;
     frag_normal = (model_matrix * vec4(normal, 0.0)).xyz;
     frag_texcoord = tex_coord;
-    gl_Position = perspective_matrix * view_matrix * model_matrix * vec4(position, 1.0);
+    gl_Position = matrix * vec4(position, 1.0);
 }

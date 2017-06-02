@@ -10,7 +10,6 @@ smooth in vec2 frag_texcoord;
 out vec4 frag_output;
 
 void main() {
-    vec4 position = texture(pos_texture, frag_texcoord);
     vec4 normal = texture(norm_texture, frag_texcoord);
     vec3 normal_vector = normalize(normal.xyz);
 

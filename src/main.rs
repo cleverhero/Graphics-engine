@@ -42,6 +42,6 @@ fn main() {
                                     with_dimensions(DEFOULD_WINDOW_WIDTH, DEFOULD_WINDOW_HEIGHT).
                                     build_glium().unwrap();
 
-    let game = CGame::new(display, DEFOULD_WINDOW_WIDTH, DEFOULD_WINDOW_HEIGHT);
+    let mut game = CGame::new(display, DEFOULD_WINDOW_WIDTH, DEFOULD_WINDOW_HEIGHT);
     game.start_loop();
 }

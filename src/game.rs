@@ -19,6 +19,7 @@ use glium::texture::DepthTexture2d;
 use glium::texture::UncompressedFloatFormat::F32F32F32F32;
 use glium::texture::DepthFormat;
 use glium::texture::MipmapsOption::NoMipmap;
+use glium::glutin;
 
 struct CWindow {
 	Facade: GlutinFacade,
@@ -26,8 +27,15 @@ struct CWindow {
 	Height: u32,
 }
 
+#[derive(Debug)]
+enum GameState {
+    World,
+    Interface,
+}
+
 pub struct CGame {
 	Window: CWindow,
+	State: GameState
 }
 
 impl CGame {
@@ -38,10 +46,11 @@ impl CGame {
 				Height: height,
 				Width:  width
 			}, 
+			State: GameState::World,
 		}
 	}
 
-	pub fn start_loop(&self) {
+	pub fn start_loop(&mut self) {
 		let width = self.Window.Width;
 		let height = self.Window.Height;
 
@@ -62,13 +71,38 @@ impl CGame {
         	for ev in self.Window.Facade.poll_events() {
         	    match ev {
         	        glium::glutin::Event::Closed => return,
-        	        _ => world.checkEvents(&ev, &self.Window.Facade),
+        	        glutin::Event::KeyboardInput(glutin::ElementState::Pressed,  _, Some(glutin::VirtualKeyCode::LControl)) => {
+						self.State = GameState::Interface;
+            		},
+            		glutin::Event::KeyboardInput(glutin::ElementState::Released,  _, Some(glutin::VirtualKeyCode::LControl)) => {
+						self.State = GameState::World;
+            		},
+        	        _ => {
+        	        	match self.State {
+        	        		GameState::World => {
+								world.checkEvents(&ev, &self.Window.Facade);
+        					},
+        					GameState::Interface => { 
+        						interface.checkEvents(&ev, &self.Window.Facade);
+        					}
+        				}
+        	        } 
         	    }
 	
         	}
-        	self.Window.Facade.get_window().unwrap().set_cursor_position((width / 2) as i32, (height / 2) as i32);
-        	world.update();
 
+        	match self.State {
+        		GameState::World => {
+        			self.Window.Facade.get_window().unwrap().set_cursor_state(glium::glutin::CursorState::Grab);
+        			self.Window.Facade.get_window().unwrap().set_cursor_position((width / 2) as i32, (height / 2) as i32);
+        		},
+        		GameState::Interface => {
+        			self.Window.Facade.get_window().unwrap().set_cursor_state(glium::glutin::CursorState::Normal);
+        		}
+        	}
+
+			world.update();
+            interface.update();
 			canvas.finish().unwrap();
     	}
 	}

@@ -49,8 +49,7 @@ impl CRenderObject {
         };
 
 		let uniforms = uniform! {
-	        perspective_matrix: (*PM).matrix,
-	        view_matrix: (*VM).matrix,
+	        matrix: (*PM * (*VM) * (*MM)).matrix,
 	        model_matrix: (*MM).matrix,
 	        tex: &self.texture.texObject,
 	    };
