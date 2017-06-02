@@ -23,6 +23,8 @@ mod viewer;
 mod text;
 mod render;
 mod gui;
+mod models2D;
+mod button;
 
 use math::Vertex;
 use math::Vector3D;
