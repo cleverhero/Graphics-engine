@@ -30,6 +30,10 @@ impl CLight {
 	pub fn set_pos(&mut self, pos: [f32; 3]) {
 		self.pos = pos;
 	}
+
+	pub fn set_color(&mut self, color: [f32; 3]) {
+		self.color = color;
+	}
 }
 
 #[derive(Copy, Clone)]

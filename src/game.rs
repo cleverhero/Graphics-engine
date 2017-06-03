@@ -101,6 +101,7 @@ impl CGame {
         		}
         	}
 
+            world.set_prop(&interface.changedProp);
 			world.update();
             interface.update();
 			canvas.finish().unwrap();

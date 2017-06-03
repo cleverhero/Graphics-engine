@@ -29,7 +29,7 @@ pub struct TrackBar {
 
 
 impl TrackBar {
-	pub fn new(prog: &Rc<CProgram>, x: f32, y: f32, width: f32, height: f32) -> TrackBar {
+	pub fn new(prog: &Rc<CProgram>, x: f32, y: f32, width: f32, height: f32)  -> TrackBar {
 		let mut backrect = Rect::new(prog, x, y, width, height);
 		backrect.color = Vector3D::new(0.0, 0.0, 0.0);
 
@@ -67,7 +67,7 @@ impl Controller for TrackBar {
 		if (x < self.backrect.x) { self.slider.x = self.backrect.x }
 		if (x > self.backrect.x + self.backrect.width - self.slider.width) { self.slider.x = self.backrect.x + self.backrect.width - self.slider.width }
 
-		self.value = self.minValue + ((self.slider.x - self.backrect.x) / self.backrect.width) * ( self.maxValue -  self.minValue );
+		self.value = self.minValue + ((self.slider.x - self.backrect.x) / (self.backrect.width - self.slider.width)) * ( self.maxValue -  self.minValue );
 		self.eventsPool.push(ControllEvent::Changed);
 	}
 
@@ -78,7 +78,17 @@ impl Controller for TrackBar {
 	}
 
 	fn draw(&mut self, display: &GlutinFacade, canvas: &mut glium::Frame, orthomatrix: &[[f32; 4]; 4]) {
+		self.slider.x = self.backrect.x + ((self.value - self.minValue) / (self.maxValue -  self.minValue))*(self.backrect.width - self.slider.width);
+
 		self.backrect.draw(display, canvas, orthomatrix);
 		self.slider.draw(display, canvas, orthomatrix);
+	}
+
+	fn setValue(&mut self, value: f32) {
+		self.value = value;
+	}
+
+	fn getValue(&mut self) -> f32 {
+		self.value
 	}
 }

@@ -78,4 +78,7 @@ impl Controller for Button {
 		}
 		self.rect.draw(display, canvas, orthomatrix);
 	}
+
+	fn setValue(&mut self, value: f32) { }
+	fn getValue(&mut self) -> f32 {	0.0 }
 }

@@ -34,6 +34,20 @@ use glium::{DisplayBuild, Surface, glutin};
 use glutin::ElementState::Pressed;
 use glutin::Event::{KeyboardInput, MouseInput};
 
+pub struct ChangedProperties {
+	pub backgroundLightColor: Vector3D,
+	pub lightColor: Vector3D
+}
+
+impl ChangedProperties {
+	pub fn new() -> ChangedProperties {
+		ChangedProperties{
+			backgroundLightColor: Vector3D::new(0.0005, 0.0005, 0.0005),
+			lightColor: Vector3D::new(1.0, 0.0, 0.0)
+		}
+	}
+}
+
 pub struct CWorld {
 	PerspectiveMatrix: Matrix4D,
 	Camera:            CCamera,
@@ -43,6 +57,8 @@ pub struct CWorld {
 	pub lights:        Vec<CLight>,
 	pub dirlights:     Vec<CDirectionLight>,
 
+	pub changedProp:   ChangedProperties,
+
 	prog: 			   Rc<CProgram>,
 	prog2: 			   Rc<CProgram>,
 	lightprog:         Rc<CProgram>,
@@ -51,7 +67,7 @@ pub struct CWorld {
 	wallTexture:       Rc<CTexture>,
 	blockTexture:      Rc<CTexture>,
 
-	orthomatrix:                [[f32; 4]; 4],
+	orthomatrix:       [[f32; 4]; 4],
 
 	timer:             SystemTime,
 }
@@ -116,6 +132,7 @@ impl CWorld {
 				 						  light2, ],
 
 				 dirlights:         vec![ dirlight ],
+				 changedProp:       ChangedProperties::new(),
 
 
     			 wallTexture:       texture.clone(),
@@ -218,12 +235,19 @@ impl CWorld {
 		canvas.draw(&quad_vertex_buffer, &quad_index_buffer, self.prog2.prog_object(), &uniforms, &Default::default()).unwrap();
 	}
 
+	pub fn set_prop(&mut self, newProp: &ChangedProperties) {
+		self.changedProp.backgroundLightColor = newProp.backgroundLightColor;
+		self.changedProp.lightColor = newProp.lightColor;
+	}
+
 	pub fn draw(&self, display: &GlutinFacade, mut render: &mut Render, mut canvas: &mut glium::Frame) {
 		let mut gbuffer = render.get_gbuffer(display);
 		let mut light_buffer = render.get_lightbuffer(display);
+		let blc = self.changedProp.backgroundLightColor;
+
 
 		gbuffer.clear_color_and_depth((0.0, 0.7, 0.933, 0.0), 1.0);
-		light_buffer.clear_color_and_depth((0.005, 0.005, 0.005, 0.0), 1.0);
+		light_buffer.clear_color_and_depth((blc.x, blc.y, blc.z, 0.0), 1.0);
 		
     	self.create_gbuffer(&mut gbuffer);
     	self.create_lightbuffer(display, &mut light_buffer, &render.pos_texture, &render.norm_texture);
@@ -250,6 +274,7 @@ impl CWorld {
 
         let top = self.lights.len() - 1;
         self.lights[top].set_pos(self.Camera.GetPos().as_arr()); 
+        self.lights[top].set_color(self.changedProp.lightColor.as_arr());
 	}
 
 	pub fn checkEvents(&mut self, event: &glium::glutin::Event, display: &GlutinFacade) {

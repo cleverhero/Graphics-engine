@@ -15,6 +15,7 @@ use std::rc::Rc;
 use models2D::Rect;
 use button::Button;
 use trackbar::TrackBar;
+use world::ChangedProperties;
 
 
 #[derive(Debug, Clone, Copy)]
@@ -31,6 +32,8 @@ pub trait Controller {
 	fn get_events(&mut self) -> Vec<ControllEvent>;
 
 	fn draw(&mut self, display: &GlutinFacade, canvas: &mut glium::Frame, orthomatrix: &[[f32; 4]; 4]);
+	fn setValue(&mut self, value: f32);
+	fn getValue(&mut self) -> f32;
 }
 
 pub struct Interface {
@@ -39,7 +42,7 @@ pub struct Interface {
 	cursor:      Point,
 	orthomatrix: [[f32; 4]; 4],
 
-	flag: bool,
+	pub changedProp:   ChangedProperties,
 }
 
 impl Interface {
@@ -49,14 +52,36 @@ impl Interface {
 
     	let prog = Rc::new(CProgram::load(display, "Shaders/2DV.vs", "Shaders/2DF.fs"));
 
-    	let mut botton1 = Box::new( Button::new(&prog, 10.0, 570.0, 60.0, 20.0) );
-    	let mut trackBar1 = Box::new( TrackBar::new(&prog, 10.0, 370.0, 60.0, 20.0) );
+    	let mut bottonDefault = Box::new( Button::new(&prog, 40.0, 450.0, 60.0, 20.0) );
+    	let mut backgroundLightR = Box::new( TrackBar::new(&prog, 10.0,  500.0, 60.0, 20.0) );
+    	let mut backgroundLightG = Box::new( TrackBar::new(&prog, 80.0,  500.0, 60.0, 20.0) );
+    	let mut backgroundLightB = Box::new( TrackBar::new(&prog, 150.0, 500.0, 60.0, 20.0) );
+		backgroundLightR.setValue(0.05);
+		backgroundLightG.setValue(0.05);
+		backgroundLightB.setValue(0.05);
+
+    	let mut LightR = Box::new( TrackBar::new(&prog, 10.0,  550.0, 60.0, 20.0) );
+    	let mut LightG = Box::new( TrackBar::new(&prog, 80.0,  550.0, 60.0, 20.0) );
+    	let mut LightB = Box::new( TrackBar::new(&prog, 150.0, 550.0, 60.0, 20.0) );
+    	LightR.setValue(100.0);
+		LightG.setValue(0.0);
+		LightB.setValue(0.0);
+
+		let mut bottonSave = Box::new( Button::new(&prog, 110.0, 450.0, 60.0, 20.0) );
 
     	Interface {
-    		elements: vec![ botton1, trackBar1 ],
+    		elements: vec![ bottonDefault,
+    						backgroundLightR,
+    						backgroundLightG,
+    						backgroundLightB,
+							LightR,
+							LightG,
+    						LightB,
+    						bottonSave, ],
+
     		orthomatrix: orthomatrix,
     		cursor:      Point::new(0.0, 0.0),
-    		flag:        true,
+    		changedProp: ChangedProperties::new(),
     	}
 	}
 
@@ -94,14 +119,38 @@ impl Interface {
 	pub fn update(&mut self) {
 		for event in self.elements[0].get_events() {
 			match event {
-				ControllEvent::Click => { self.OnEvent(); },
+				ControllEvent::Click => { self.OnClickDefault(); },
+				_ => { }
+			}
+		}
+
+		for event in self.elements[7].get_events() {
+			match event {
+				ControllEvent::Click => { self.OnClickSave(); },
 				_ => { }
 			}
 		}
 	}
 
-	pub fn OnEvent(&mut self) {
-		self.flag = !self.flag;
-		println!("{}", self.flag);
+	pub fn OnClickDefault(&mut self) {
+		self.elements[1].setValue(0.5);
+		self.elements[2].setValue(0.5);
+		self.elements[3].setValue(0.5);
+
+		self.elements[4].setValue(100.0);
+		self.elements[5].setValue(0.0);
+		self.elements[6].setValue(0.0);
+	}
+
+	pub fn OnClickSave(&mut self) {
+		let mut r = self.elements[1].getValue() / 100.0;
+		let mut g = self.elements[2].getValue() / 100.0;
+		let mut b = self.elements[3].getValue() / 100.0;
+		self.changedProp.backgroundLightColor = Vector3D::new(r, g, b);
+
+		r = self.elements[4].getValue() / 100.0;
+		g = self.elements[5].getValue() / 100.0;
+		b = self.elements[6].getValue() / 100.0;
+		self.changedProp.lightColor = Vector3D::new(r, g, b);
 	}
 }
