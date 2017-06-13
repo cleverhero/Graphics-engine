@@ -103,7 +103,7 @@ impl Vector3D {
 		[self.x, self.y, self.z]
 	}
 
-	pub fn cross(&self, v: Vector3D) -> Vector3D {
+	pub fn cross(&self, v: &Vector3D) -> Vector3D {
 		let x = self.y * v.z - self.z * v.y;
     	let y = self.z * v.x - self.x * v.z;
     	let z = self.x * v.y - self.y * v.x;
@@ -126,8 +126,8 @@ impl Vector3D {
     	self
 	}
 
-	pub fn rotate(&mut self, angle: f32, mut axis: Vector3D) {
-		let mut quaternion = Quaternion{ a: (angle / 2.0 * (consts::PI as f32) / 180.0 ).cos(), vector: axis * (angle / 2.0 * (consts::PI as f32) / 180.0 ).sin() };
+	pub fn rotate(&mut self, angle: f32, axis: &Vector3D) {
+		let mut quaternion = Quaternion{ a: (angle / 2.0 * (consts::PI as f32) / 180.0 ).cos(), vector: *axis * (angle / 2.0 * (consts::PI as f32) / 180.0 ).sin() };
 
 		let newV = (quaternion * Quaternion{ a: 0.0, vector: *self } * (-quaternion)).vector_part();
 		*self = newV;
@@ -140,9 +140,9 @@ impl Vector3D {
 		newv
 	}
 
-	pub fn angle(&self, other: Vector3D) -> f32 {
+	pub fn angle(&self, other: &Vector3D) -> f32 {
 		if (self.length() < 0.0000001) || (other.length() < 0.0000001) { return 0.0; }
-		((*self * other) / (self.length() * other.length())).acos()
+		(((*self) * (*other)) / (self.length() * other.length())).acos()
 	}
 }
 
@@ -259,7 +259,7 @@ impl Matrix4D {
 		Matrix4D { matrix: m }
 	}
 
-	pub fn Translation(vecPos: Vector3D) -> Matrix4D {
+	pub fn Translation(vecPos: &Vector3D) -> Matrix4D {
 		let m = [ [ 1.0,      0.0,      0.0,      0.0f32 ],
 			      [ 0.0,      1.0,      0.0,      0.0f32 ],
 			      [ 0.0,      0.0,      1.0,      0.0f32 ],
@@ -268,7 +268,7 @@ impl Matrix4D {
 		Matrix4D { matrix: m }
 	}
 
-	pub fn Scale(vecScale: Vector3D) -> Matrix4D {
+	pub fn Scale(vecScale: &Vector3D) -> Matrix4D {
 		let m = [ [ vecScale.x, 0.0,        0.0,        0.0f32 ],
 			      [ 0.0,        vecScale.y, 0.0,        0.0f32 ],
 			      [ 0.0,        0.0,        vecScale.z, 0.0f32 ],
@@ -277,7 +277,7 @@ impl Matrix4D {
 		Matrix4D { matrix: m }
 	}
 
-	pub fn Rotate(vecRot: Vector3D) -> Matrix4D {
+	pub fn Rotate(vecRot: &Vector3D) -> Matrix4D {
 		let angleX = Rad{ s: vecRot.x };
 		let x = [ [ 1.0, 0.0,               0.0,              0.0f32 ],
 			      [ 0.0, Rad::cos(angleX), -Rad::sin(angleX), 0.0f32 ],
@@ -315,10 +315,10 @@ impl Matrix4D {
 		Matrix4D { matrix: m }
 	}
 
-	pub fn InitCameraTransform(Target: Vector3D, Up: Vector3D) -> Matrix4D {
-    	let mut N = -Target;
+	pub fn InitCameraTransform(Target: &Vector3D, Up: &Vector3D) -> Matrix4D {
+    	let mut N = -*Target;
     	N.normalize();
-    	let mut U = Up;
+    	let mut U = *Up;
     	U.normalize();
     	U = U.cross(Target);
    		let mut V = Up;
@@ -360,8 +360,8 @@ struct Quaternion {
 
 
 impl Quaternion {
-	fn new(sclr: f32, vctr: Vector3D) -> Quaternion {
-		Quaternion { vector: vctr, a: sclr }
+	fn new(sclr: f32, vctr: &Vector3D) -> Quaternion {
+		Quaternion { vector: *vctr, a: sclr }
 	}
 
 	fn scalar_part(self) -> f32 {

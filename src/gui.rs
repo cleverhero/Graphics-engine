@@ -52,7 +52,7 @@ impl Interface {
 
     	let prog = Rc::new(CProgram::load(display, "Shaders/2DV.vs", "Shaders/2DF.fs"));
 
-    	let mut bottonDefault = Box::new( Button::new(&prog, 40.0, 450.0, 60.0, 20.0) );
+    	let mut bottonDefault = Box::new( Button::new(&prog, 20.0, 450.0, 60.0, 20.0) );
     	let mut backgroundLightR = Box::new( TrackBar::new(&prog, 10.0,  500.0, 60.0, 20.0) );
     	let mut backgroundLightG = Box::new( TrackBar::new(&prog, 80.0,  500.0, 60.0, 20.0) );
     	let mut backgroundLightB = Box::new( TrackBar::new(&prog, 150.0, 500.0, 60.0, 20.0) );
@@ -67,7 +67,7 @@ impl Interface {
 		LightG.setValue(0.0);
 		LightB.setValue(0.0);
 
-		let mut bottonSave = Box::new( Button::new(&prog, 110.0, 450.0, 60.0, 20.0) );
+		let mut bottonSave = Box::new( Button::new(&prog, 130.0, 450.0, 60.0, 20.0) );
 
     	Interface {
     		elements: vec![ bottonDefault,

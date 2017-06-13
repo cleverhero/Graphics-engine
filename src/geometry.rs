@@ -52,14 +52,14 @@ impl inters<Line> for Triangle {
 		let C =  tp1.x*tp2.y - tp2.x*tp1.y;
 
 		let mut n = Vector3D::new(A, B, C).normalize();
-		let angle = n.angle(Vector3D::new(0.0, 1.0, 0.0)).to_degrees();
-		let right = n.cross(Vector3D::new(0.0, 1.0, 0.0)).normalize();
+		let angle = n.angle(&Vector3D::new(0.0, 1.0, 0.0)).to_degrees();
+		let right = n.cross(&Vector3D::new(0.0, 1.0, 0.0)).normalize();
 
-		tp0.rotate(angle, right); 
-		tp1.rotate(angle, right);
-		tp2.rotate(angle, right);
-		lp1.rotate(angle, right);
-		lp2.rotate(angle, right);
+		tp0.rotate(angle, &right); 
+		tp1.rotate(angle, &right);
+		tp2.rotate(angle, &right);
+		lp1.rotate(angle, &right);
+		lp2.rotate(angle, &right);
 
 		if (lp1.y * lp2.y > 0.0) {return false};
 		let k = (lp1.y - lp2.y)/(lp1.y);

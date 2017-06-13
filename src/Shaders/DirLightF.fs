@@ -6,7 +6,7 @@ uniform sampler2D norm_texture;
 uniform vec3 light_color;
 uniform vec3 light_vector;
 
-smooth in vec2 frag_texcoord;
+in vec2 frag_texcoord;
 out vec4 frag_output;
 
 void main() {

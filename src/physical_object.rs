@@ -39,7 +39,7 @@ impl CPhysicalObject {
 	}  
 
 	pub fn getMT(&self) -> Matrix4D {
-		Matrix4D::Translation(self.position.get()) * Matrix4D::Scale(self.scale.get()) * Matrix4D::Rotate(self.rotate.get())
+		Matrix4D::Translation(&self.position.get()) * Matrix4D::Scale(&self.scale.get()) * Matrix4D::Rotate(&self.rotate.get())
 	}
 
 	pub fn rollback(&self) {

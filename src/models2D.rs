@@ -1,5 +1,6 @@
 extern crate cgmath;
 extern crate glium;
+//extern crate glium_text;
 
 use program::CProgram;
 use glium::index::PrimitiveType;
@@ -12,6 +13,7 @@ use math::Size2;
 use math::Point;
 use math::Vector3D;
 use std::rc::Rc;
+use std;
 
 pub struct Rect {
 	prog: Rc<CProgram>,
@@ -81,5 +83,18 @@ impl Rect {
         };
 
 		canvas.draw(&quad_vertex_buffer, &quad_index_buffer, self.prog.prog_object(), &uniforms, &Default::default()).unwrap();
+
+		// let system = glium_text::TextSystem::new(display);
+
+		// let font = glium_text::FontTexture::new(display, 
+		// 	std::fs::File::open(&std::path::Path::new("../assets/fonts/NotoSans/NotoSans-Itakic.ttf")).unwrap(), 24).unwrap();
+
+		// let text = glium_text::TextDisplay::new(&system, &font, "Hello world!");
+
+		// let matrix = [[1.0, 0.0, 0.0, 0.0],
+		//               [0.0, 1.0, 0.0, 0.0],
+		//               [0.0, 0.0, 1.0, 0.0],
+		//               [0.0, 0.0, 0.0, 1.0]];
+		// glium_text::draw(&text, &system, &mut display.draw(), matrix, (1.0, 1.0, 0.0, 1.0));
 	}
 }

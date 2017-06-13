@@ -102,17 +102,17 @@ impl CCamera {
 		let Vaxis = Vector3D::new(0.0, 1.0, 0.0);
 
     	let mut View = Vector3D::new(0.0, 0.0, 1.0);
-    	View.rotate(self.angle.x, Vaxis);
+    	View.rotate(self.angle.x, &Vaxis);
     	View.normalize();
 	
-    	let Haxis = Vaxis.cross(View);
+    	let Haxis = Vaxis.cross(&View);
     	Haxis.normalize();
-    	View.rotate(self.angle.y, Haxis);
+    	View.rotate(self.angle.y, &Haxis);
 
     	self.target = View;
     	self.target.normalize();
 	
-    	self.up = View.cross(Haxis);
+    	self.up = View.cross(&Haxis);
 		self.up.normalize();
 	}
 }

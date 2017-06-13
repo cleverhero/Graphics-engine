@@ -121,7 +121,7 @@ impl CanBeCamera for CGameObject {
             _ => ()
 		}
 		self.physical_object.speed.set(dir.x * trg.projectionXOZ() + 
-									   dir.z * trg.cross(up) + 
+									   dir.z * trg.cross(&up) + 
 									   dir.y * Vector3D::new(0.0, 1.0, 0.0));
 
 		self.dir.set(dir);

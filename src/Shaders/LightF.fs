@@ -12,7 +12,7 @@ uniform vec3 light_vector;
 uniform float light_range;
 uniform float light_maxradius;
 
-smooth in vec2 frag_texcoord;
+in vec2 frag_texcoord;
 out vec4 frag_output;
 
 void main() {

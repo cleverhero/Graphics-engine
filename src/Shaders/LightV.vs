@@ -3,7 +3,7 @@
 uniform mat4 matrix;
 in vec3 position;
 in vec2 tex_coord;
-smooth out vec2 frag_texcoord;
+out vec2 frag_texcoord;
 
 void main() {
     gl_Position = matrix * vec4(position, 1.0);

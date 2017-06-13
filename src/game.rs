@@ -63,7 +63,6 @@ impl CGame {
 
 		loop {
 			let mut canvas = self.Window.Facade.draw();
-			canvas.clear_color(0.0, 0.0, 0.0, 0.0);
 
         	world.draw(&self.Window.Facade, &mut render, &mut canvas);
         	interface.draw(&self.Window.Facade, &mut canvas);
