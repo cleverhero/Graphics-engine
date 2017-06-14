@@ -14,15 +14,18 @@ pub struct CPhysicalObject {
 	pub rotate:       Cell<Vector3D>,
 
 	pub speed:        Cell<Vector3D>,
+	pub power:        Cell<Vector3D>,
 
 	pub coords:       Vec<Vector3D>,
 	pub inds:         Vec<u32>,
 
 	pub size:         Vector3D,
+	pub weight:       f32,
+	pub movable:      bool,
 }
 
 impl CPhysicalObject {
-	pub fn new(mdl: &models::CModel) -> CPhysicalObject {
+	pub fn new(mdl: &models::CModel, weight: f32) -> CPhysicalObject {
 		let coords = mdl.coords.clone();
 		let sb = AABB::new(&coords, Matrix4D::InitIdentity());
 
@@ -32,14 +35,34 @@ impl CPhysicalObject {
    	 		     	     scale:        Cell::new(Vector3D::new(1.0, 1.0, 1.0)),
    	 		             rotate:       Cell::new(Vector3D::new(0.0, 0.0, 0.0)), 
    	 		             speed:        Cell::new(Vector3D::new(0.0, 0.0, 0.0)), 
+   	 		             power:        Cell::new(Vector3D::new(0.0, 0.0, 0.0)), 
+
 
    	 		         	 coords:       coords,
 						 inds:         mdl.inds.clone(),
-						 size:         sb.maxV - sb.minV }
+						 size:         sb.maxV - sb.minV,
+						 weight:       weight,
+						 movable:      false }
 	}  
 
 	pub fn getMT(&self) -> Matrix4D {
 		Matrix4D::Translation(&self.position.get()) * Matrix4D::Scale(&self.scale.get()) * Matrix4D::Rotate(&self.rotate.get())
+	}
+
+	pub fn add_power(&self, power: &Vector3D) {
+		if (!self.movable) { return }
+		self.power.set(self.power.get() + *power);
+	}
+
+	pub fn add_speed(&self, speed: &Vector3D) {
+		if (!self.movable) { return }
+		self.speed.set(self.speed.get() + *speed);
+	}
+
+	pub fn init(&self) {
+		self.power.set(Vector3D::new(0.0, 0.0, 0.0));
+
+		//self.add_power(&Vector3D::new(0.0, -9.8*self.weight, 0.0));
 	}
 
 	pub fn rollback(&self) {
@@ -49,15 +72,18 @@ impl CPhysicalObject {
 
 	pub fn update(&self, time: f32) {
 		let mut speed = self.speed.get();
+		let a = self.power.get()*(1.0/self.weight);
+
 
 		let mut pos = self.position.get();
 		self.old_position.set(pos);
-		pos = self.position.get() + speed * time;
+		pos = self.position.get() + speed * time + a*(time*time/2.0);
+		self.add_speed(&(a*time));
 
-
-		//if (speed.y > -50.0) { speed.y -= 9.8 * time; }
-		self.speed.set(speed);
 		self.position.set(pos);
+	}
+
+	pub fn collision(&self, other: &CPhysicalObject) {
 
 	}
 

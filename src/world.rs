@@ -102,7 +102,6 @@ impl CWorld {
         let cube1 = Rc::new( CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &block, &prog) );
         cube1.set_scale(Vector3D::new(3.0, 3.0, 3.0));
         cube1.set_pos(Vector3D::new(-4.0, 1.0, 0.0));
-        
 
         let cube2 = Rc::new( CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &block, &prog) );
         cube2.set_scale(Vector3D::new(0.3, 0.3, 0.3));
@@ -280,7 +279,11 @@ impl CWorld {
         self.Camera.update(t);
         self.Viewer.update(t);
 
-        println!("{}", 1.0/t);
+        //println!("{}", 1.0/t);
+
+        //or obj in &self.objs {
+        //   obj.init();
+        // 
 
         for i in (0..self.objs.len()) {
             let obj_i = &self.objs[i];
@@ -295,6 +298,28 @@ impl CWorld {
                 }
             }
         }
+
+       //for obj in &self.objs {
+       //    obj.update(t);
+       //}
+
+       //for i in (0..self.objs.len()) {
+       //    let obj_i = &self.objs[i];
+
+       //    for j in (0..self.objs.len()) {
+       //        if ( i == j ) { continue; }
+       //        let obj_j = &self.objs[j];
+
+       //        if obj_i.intersect_with(obj_j) {
+       //            obj_i.collision(&obj_j);
+       //        }
+       //    }
+       //}
+
+       //for obj in &self.objs {
+       //    obj.rollback();
+       //    obj.update(t);
+       //}
 
         self.timer = new_timer;
     }

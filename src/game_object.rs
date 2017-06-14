@@ -29,7 +29,7 @@ pub struct CGameObject {
 impl CGameObject {
 	pub fn new(display: &GlutinFacade, mdl: models::CModel, texture: &Rc<CTexture>, program: &Rc<CProgram>) -> CGameObject {
 		let render_object = CRenderObject::new(display, &mdl, texture, program);
-		let physical_object = CPhysicalObject::new(&mdl);
+		let physical_object = CPhysicalObject::new(&mdl, 1.0);
 
    	 	CGameObject{ physical_object: physical_object,
    	 				 render_object:   render_object,
@@ -76,6 +76,14 @@ impl CGameObject {
 
 	pub fn update(&self, time: f32) {
 		self.physical_object.update(time);
+	}
+
+	pub fn init(&self) {
+		self.physical_object.init();
+	}
+
+	pub fn collision(&self, other: &CGameObject) {
+		self.physical_object.collision(&other.physical_object);
 	}
 }
 
