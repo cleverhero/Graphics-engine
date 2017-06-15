@@ -15,6 +15,7 @@ use std::rc::Rc;
 use models2D::Rect;
 use gui::ControllEvent;
 use gui::Controller;
+use render::Render;
 
 pub struct Button {
 	pub rect: Rect,	
@@ -69,14 +70,14 @@ impl Controller for Button {
 		tmp
 	}
 
-	fn draw(&mut self, display: &GlutinFacade, canvas: &mut glium::Frame, orthomatrix: &[[f32; 4]; 4]) {
+	fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame) {
 		if self.is_taped {
 			self.rect.color = self.taped_color;
 		} 
 		else {
 			self.rect.color = self.untaped_color;
 		}
-		self.rect.draw(display, canvas, orthomatrix);
+		self.rect.draw(display, render, canvas);
 	}
 
 	fn setValue(&mut self, value: f32) { }

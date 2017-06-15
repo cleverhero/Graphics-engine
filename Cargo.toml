@@ -11,6 +11,8 @@ image = "0.12.0"
 glutin = "0.7.1"
 cgmath = "0.9.1"
 rusttype = "0.2"
+arrayvec = "^0.3.13"
+unicode-normalization = "^0.1.2"
 
 
 [profile.release]

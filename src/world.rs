@@ -211,7 +211,7 @@ impl CWorld {
         self.changedProp.lightColor = newProp.lightColor;
     }
 
-    pub fn draw(&self, display: &GlutinFacade, mut render: &mut Render, mut canvas: &mut glium::Frame) {
+    pub fn draw(&self, display: &GlutinFacade, render: &mut Render, mut canvas: &mut glium::Frame) {
         let mut gbuffer = render.get_gbuffer(display);
         let mut light_buffer = render.get_lightbuffer(display);
         let blc = self.changedProp.backgroundLightColor;

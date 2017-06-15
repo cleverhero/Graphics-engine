@@ -14,6 +14,7 @@ use math::Point;
 use math::Vector3D;
 use std::rc::Rc;
 use std;
+use render::Render;
 
 pub struct Rect {
 	prog: Rc<CProgram>,
@@ -58,7 +59,7 @@ impl Rect {
 		return false;
 	}
 
-	pub fn draw(&self, display: &GlutinFacade, canvas: &mut glium::Frame, orthomatrix: &[[f32; 4]; 4]) {
+	pub fn draw(&self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame) {
 		let x0 = self.x;
 		let y0 = self.y;
 		let x1 = self.x + self.width;
@@ -78,23 +79,10 @@ impl Rect {
     	let color = Vector3D::new(0.3, 0.3, 0.3);
 
     	let uniforms = uniform! {
-            matrix: *orthomatrix,
+            matrix: render.orthomatrix,
             color:  self.color.as_arr(),
         };
 
 		canvas.draw(&quad_vertex_buffer, &quad_index_buffer, self.prog.prog_object(), &uniforms, &Default::default()).unwrap();
-
-		// let system = glium_text::TextSystem::new(display);
-
-		// let font = glium_text::FontTexture::new(display, 
-		// 	std::fs::File::open(&std::path::Path::new("../assets/fonts/NotoSans/NotoSans-Itakic.ttf")).unwrap(), 24).unwrap();
-
-		// let text = glium_text::TextDisplay::new(&system, &font, "Hello world!");
-
-		// let matrix = [[1.0, 0.0, 0.0, 0.0],
-		//               [0.0, 1.0, 0.0, 0.0],
-		//               [0.0, 0.0, 1.0, 0.0],
-		//               [0.0, 0.0, 0.0, 1.0]];
-		// glium_text::draw(&text, &system, &mut display.draw(), matrix, (1.0, 1.0, 0.0, 1.0));
 	}
 }

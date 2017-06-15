@@ -65,7 +65,7 @@ impl CGame {
 			let mut canvas = self.Window.Facade.draw();
 
         	world.draw(&self.Window.Facade, &mut render, &mut canvas);
-        	interface.draw(&self.Window.Facade, &mut canvas);
+        	interface.draw(&self.Window.Facade, &mut render, &mut canvas);
 			
         	for ev in self.Window.Facade.poll_events() {
         	    match ev {

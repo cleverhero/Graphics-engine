@@ -15,6 +15,7 @@ use std::rc::Rc;
 use models2D::Rect;
 use gui::ControllEvent;
 use gui::Controller;
+use render::Render;
 
 pub struct TrackBar {
 	pub backrect: Rect,	
@@ -77,11 +78,11 @@ impl Controller for TrackBar {
 		tmp
 	}
 
-	fn draw(&mut self, display: &GlutinFacade, canvas: &mut glium::Frame, orthomatrix: &[[f32; 4]; 4]) {
+	fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame) {
 		self.slider.x = self.backrect.x + ((self.value - self.minValue) / (self.maxValue -  self.minValue))*(self.backrect.width - self.slider.width);
 
-		self.backrect.draw(display, canvas, orthomatrix);
-		self.slider.draw(display, canvas, orthomatrix);
+		self.backrect.draw(display, render, canvas);
+		self.slider.draw(display, render, canvas);
 	}
 
 	fn setValue(&mut self, value: f32) {
