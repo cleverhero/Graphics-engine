@@ -1,7 +1,7 @@
 extern crate glium;
 
 use glium::glutin;
-use math::Vector3D;
+use math::{ Vector3D, Matrix4D};
 use std::rc::Rc;
 use math::Point;
 use std::f64;
@@ -19,6 +19,8 @@ pub trait CanBeCamera {
 }
 
 pub struct CCamera {
+	pub PerspectiveMatrix: Matrix4D,
+
 	pub target:   	Vector3D,
 	pub up:       	Vector3D,
 	
@@ -51,13 +53,17 @@ impl CanBeCamera for DefaultCamera {
 
 impl CCamera {
 	pub fn new(pos: Vector3D, trg: Vector3D, up: Vector3D, w: u32, h: u32) -> CCamera {
+		let mut PerspectiveMatrix = Matrix4D::PerspectiveMatrix(60.0f32, w as f32, h as f32, 0.01, 100.0);
+
 		CCamera{ target:       trg,
 			     up:           up,
 			     player:       Box::new(Rc::new( DefaultCamera::new() )),
 			     angle:        Point::new(0.0, 0.0),
 			     mousePos:     Point::new(w as f32 / 2.0, h as f32 / 2.0), 
 			     shift:        Vector3D::new(0.0, 0.0, 0.0),
-			     dist:         2.0 }
+			     dist:         2.0,
+
+			     PerspectiveMatrix: PerspectiveMatrix }
 	}
 
 	pub fn SetOwner(&mut self, player: Box<Rc<CanBeCamera>>) {

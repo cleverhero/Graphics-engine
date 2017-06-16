@@ -16,6 +16,8 @@ use models2D::Rect;
 use gui::ControllEvent;
 use gui::Controller;
 use render::Render;
+use rusttype::{FontCollection, Font, Scale, point, vector, PositionedGlyph};
+use rusttype::gpu_cache::{Cache};
 
 pub struct Button {
 	pub rect: Rect,	
@@ -28,9 +30,9 @@ pub struct Button {
 
 
 impl Button {
-	pub fn new(prog: &Rc<CProgram>, x: f32, y: f32, width: f32, height: f32) -> Button {
+	pub fn new(display: &GlutinFacade, prog: &Rc<CProgram>, x: f32, y: f32, width: f32, height: f32) -> Button {
 		Button {
-			rect: Rect::new(prog, x, y, width, height),
+			rect: Rect::new(display, prog, x, y, width, height),
 			is_taped: false,
 			taped_color: Vector3D::new(1.0, 0.0, 0.0),
 			untaped_color: Vector3D::new(0.0, 1.0, 0.0),
@@ -70,7 +72,7 @@ impl Controller for Button {
 		tmp
 	}
 
-	fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame) {
+	fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame, font: &Font) {
 		if self.is_taped {
 			self.rect.color = self.taped_color;
 		} 
@@ -78,6 +80,7 @@ impl Controller for Button {
 			self.rect.color = self.untaped_color;
 		}
 		self.rect.draw(display, render, canvas);
+		//self.rect.draw_text(display, render, canvas, font, "kKLjJl".into());
 	}
 
 	fn setValue(&mut self, value: f32) { }

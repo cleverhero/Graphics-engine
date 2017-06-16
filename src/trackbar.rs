@@ -16,6 +16,8 @@ use models2D::Rect;
 use gui::ControllEvent;
 use gui::Controller;
 use render::Render;
+use rusttype::{FontCollection, Font, Scale, point, vector, PositionedGlyph};
+use rusttype::gpu_cache::{Cache};
 
 pub struct TrackBar {
 	pub backrect: Rect,	
@@ -30,11 +32,11 @@ pub struct TrackBar {
 
 
 impl TrackBar {
-	pub fn new(prog: &Rc<CProgram>, x: f32, y: f32, width: f32, height: f32)  -> TrackBar {
-		let mut backrect = Rect::new(prog, x, y, width, height);
+	pub fn new(display: &GlutinFacade, prog: &Rc<CProgram>, x: f32, y: f32, width: f32, height: f32)  -> TrackBar {
+		let mut backrect = Rect::new(display, prog, x, y, width, height);
 		backrect.color = Vector3D::new(0.0, 0.0, 0.0);
 
-		let mut slider = Rect::new(prog, x, y, width*0.1, height);
+		let mut slider = Rect::new(display, prog, x, y, width*0.1, height);
 		slider.color = Vector3D::new(0.7, 0.7, 0.7);
 
 		TrackBar {
@@ -78,7 +80,7 @@ impl Controller for TrackBar {
 		tmp
 	}
 
-	fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame) {
+	fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame, font: &Font) {
 		self.slider.x = self.backrect.x + ((self.value - self.minValue) / (self.maxValue -  self.minValue))*(self.backrect.width - self.slider.width);
 
 		self.backrect.draw(display, render, canvas);

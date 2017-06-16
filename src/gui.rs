@@ -34,13 +34,13 @@ pub trait Controller {
 
     fn get_events(&mut self) -> Vec<ControllEvent>;
 
-    fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame);
+    fn draw(&mut self, display: &GlutinFacade, render: &mut Render, canvas: &mut glium::Frame, font: &Font);
     fn setValue(&mut self, value: f32);
     fn getValue(&mut self) -> f32;
 }
 
 fn new_font() -> rusttype::Font<'static> {
-    let font_data = include_bytes!("Arial Unicode.ttf");
+    let font_data = include_bytes!("assets/fonts/NotoSans/NotoSans-Italic.ttf");
     FontCollection::from_bytes(font_data as &[u8]).into_font().unwrap()
 }
 
@@ -57,22 +57,22 @@ impl Interface {
     pub fn new(display: &GlutinFacade, winSize: Size2) -> Interface {
         let prog = Rc::new(CProgram::load(display, "Shaders/2DV.vs", "Shaders/2DF.fs"));
 
-        let mut bottonDefault = Box::new( Button::new(&prog, 20.0, 450.0, 60.0, 20.0) );
-        let mut backgroundLightR = Box::new( TrackBar::new(&prog, 10.0,  500.0, 60.0, 20.0) );
-        let mut backgroundLightG = Box::new( TrackBar::new(&prog, 80.0,  500.0, 60.0, 20.0) );
-        let mut backgroundLightB = Box::new( TrackBar::new(&prog, 150.0, 500.0, 60.0, 20.0) );
+        let mut bottonDefault = Box::new( Button::new(display, &prog, 20.0, 450.0, 60.0, 20.0) );
+        let mut backgroundLightR = Box::new( TrackBar::new(display, &prog, 10.0,  500.0, 60.0, 20.0) );
+        let mut backgroundLightG = Box::new( TrackBar::new(display, &prog, 80.0,  500.0, 60.0, 20.0) );
+        let mut backgroundLightB = Box::new( TrackBar::new(display, &prog, 150.0, 500.0, 60.0, 20.0) );
         backgroundLightR.setValue(0.05);
         backgroundLightG.setValue(0.05);
         backgroundLightB.setValue(0.05);
 
-        let mut LightR = Box::new( TrackBar::new(&prog, 10.0,  550.0, 60.0, 20.0) );
-        let mut LightG = Box::new( TrackBar::new(&prog, 80.0,  550.0, 60.0, 20.0) );
-        let mut LightB = Box::new( TrackBar::new(&prog, 150.0, 550.0, 60.0, 20.0) );
+        let mut LightR = Box::new( TrackBar::new(display, &prog, 10.0,  550.0, 60.0, 20.0) );
+        let mut LightG = Box::new( TrackBar::new(display, &prog, 80.0,  550.0, 60.0, 20.0) );
+        let mut LightB = Box::new( TrackBar::new(display, &prog, 150.0, 550.0, 60.0, 20.0) );
         LightR.setValue(100.0);
         LightG.setValue(0.0);
         LightB.setValue(0.0);
 
-        let mut bottonSave = Box::new( Button::new(&prog, 130.0, 450.0, 60.0, 20.0) );
+        let mut bottonSave = Box::new( Button::new(display, &prog, 120.0, 450.0, 60.0, 20.0) );
 
         Interface {
             elements: vec![ bottonDefault,
@@ -92,7 +92,7 @@ impl Interface {
 
     pub fn draw(&mut self, display: &GlutinFacade, render: &mut Render, mut canvas: &mut glium::Frame) {
         for element in &mut self.elements {
-            element.draw(display, render, canvas);
+            element.draw(display, render, canvas, &self.font);
         }
     }
 
