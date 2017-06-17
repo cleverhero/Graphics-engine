@@ -11,6 +11,7 @@ use glium::framebuffer::MultiOutputFrameBuffer;
 use std::rc::Rc;
 use camera::CanBeCamera;
 use glium::glutin;
+use models::CModel;
 
 use math::Vector3D;
 use math::Matrix4D;
@@ -18,6 +19,9 @@ use physical_object::CPhysicalObject;
 use render_object::CRenderObject;
 use geometry::inters;
 use std::cell::Cell;
+
+use std::f32;
+use std::str::FromStr;
 
 pub struct CGameObject {
 	pub physical_object: CPhysicalObject,
@@ -84,6 +88,47 @@ impl CGameObject {
 
 	pub fn collision(&self, other: &CGameObject) {
 		self.physical_object.collision(&other.physical_object);
+	}
+
+	pub fn save(&self) -> String {
+		self.render_object.to_string() + &" " + &self.physical_object.to_string()
+	}
+
+	pub fn load(display: &GlutinFacade, data: String, textures: &Vec<Rc<CTexture>>, prog: &Rc<CProgram>) -> CGameObject {
+		let items: Vec<&str> = data.split(" ").collect();
+		let model_name: &str = items[0];
+		let tex_id = f32::from_str(items[1]).unwrap() as i32;
+		let mut cur_tex = textures[0].clone();
+		for texture in textures {
+			if (tex_id == texture.id) { 
+				cur_tex = texture.clone();
+				break;
+			}
+		}
+		let pos = Vector3D::new(
+			f32::from_str(items[2]).unwrap(),
+			f32::from_str(items[3]).unwrap(),
+			f32::from_str(items[4]).unwrap()
+		);
+		let scale = Vector3D::new(
+			f32::from_str(items[5]).unwrap(),
+			f32::from_str(items[6]).unwrap(),
+			f32::from_str(items[7]).unwrap()
+		);
+		let speed = Vector3D::new(
+			f32::from_str(items[8]).unwrap(),
+			f32::from_str(items[9]).unwrap(),
+			f32::from_str(items[10]).unwrap()
+		);
+		let mut new_obj: CGameObject;
+		if (model_name == "c") {
+			new_obj = CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &cur_tex, prog);
+		} else {
+			new_obj = CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &cur_tex, prog);
+		}
+		new_obj.set_scale(scale);
+		new_obj.set_pos(pos);
+		new_obj
 	}
 }
 

@@ -8,13 +8,15 @@ pub struct CModel {
 	pub vertcs: Vec<Vertex>,
     pub coords: Vec<Vector3D>,
     pub inds:   Vec<u32>,
+    pub name:   String,
 } 
 
 impl CModel {
-	pub fn new(vertcs: &Vec<Vertex>, inds: &Vec<u32>, coords: &Vec<Vector3D>) -> CModel {
+	pub fn new(vertcs: &Vec<Vertex>, inds: &Vec<u32>, coords: &Vec<Vector3D>, name: String) -> CModel {
 		CModel{ vertcs: vertcs.clone(), 
                 coords: coords.clone(),
-                inds:   inds.clone(),  }
+                inds:   inds.clone(),
+                name:   name  }
 	}
 
 	pub fn cube(size: Vector3D) -> CModel {
@@ -78,6 +80,6 @@ impl CModel {
     					 21, 20, 22,
     					 21, 22, 23 ];
 
-    	CModel::new(&vertcs, &inds, &coords)
+    	CModel::new(&vertcs, &inds, &coords, "c".into())
 	}
 }

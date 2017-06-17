@@ -10,6 +10,7 @@ use glium::{DisplayBuild, Surface};
 use std::rc::Rc;
 use camera::CanBeCamera;
 use glium::glutin;
+use std::f32;
 
 use math::Vector3D;
 use math::Matrix4D;
@@ -17,6 +18,7 @@ use physical_object::CPhysicalObject;
 use render_object::CRenderObject;
 use geometry::inters;
 use std::cell::Cell;
+use std::str::FromStr;
 
 pub struct CViewer {
 	pub pos: Cell<Vector3D>,
@@ -38,6 +40,22 @@ impl CViewer {
 
 		self.speed.set(speed);
 		self.pos.set(pos);
+	}
+
+	pub fn save(&self) -> String {
+		let pos = self.pos.get();
+
+		pos.to_string()
+	}
+
+	pub fn load(&self, data: String) {
+		let nums: Vec<&str> = data.split(" ").collect();
+
+		let x = f32::from_str(nums[0]).unwrap();
+		let y = f32::from_str(nums[1]).unwrap();
+		let z = f32::from_str(nums[2]).unwrap();
+
+		self.pos.set(Vector3D::new(x, y, z));
 	}
 }
 

@@ -59,13 +59,13 @@ impl CGame {
 
     	let mut world = CWorld::new(&self.Window.Facade, width, height);
     	let mut render = Render::new(&self.Window.Facade, width, height);
-    	let mut interface = Interface::new(&self.Window.Facade, Size2{w: width, h: height});
+    	//let mut interface = Interface::new(&self.Window.Facade, Size2{w: width, h: height});
 
 		loop {
 			let mut canvas = self.Window.Facade.draw();
 
         	world.draw(&self.Window.Facade, &mut render, &mut canvas);
-        	interface.draw(&self.Window.Facade, &mut render, &mut canvas);
+        	//interface.draw(&self.Window.Facade, &mut render, &mut canvas);
 			
         	for ev in self.Window.Facade.poll_events() {
         	    match ev {
@@ -82,7 +82,7 @@ impl CGame {
 								world.checkEvents(&ev, &self.Window.Facade);
         					},
         					GameState::Interface => { 
-        						interface.checkEvents(&ev, &self.Window.Facade);
+        						//interface.checkEvents(&ev, &self.Window.Facade);
         					}
         				}
         	        } 
@@ -96,13 +96,13 @@ impl CGame {
         			self.Window.Facade.get_window().unwrap().set_cursor_position((width / 2) as i32, (height / 2) as i32);
         		},
         		GameState::Interface => {
-        			self.Window.Facade.get_window().unwrap().set_cursor_state(glium::glutin::CursorState::Normal);
+        			//self.Window.Facade.get_window().unwrap().set_cursor_state(glium::glutin::CursorState::Normal);
         		}
         	}
 
-            world.set_prop(&interface.changedProp);
+            //world.set_prop(&interface.changedProp);
 			world.update();
-            interface.update();
+            //interface.update();
 			canvas.finish().unwrap();
     	}
 	}

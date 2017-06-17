@@ -83,6 +83,10 @@ impl CPhysicalObject {
 		self.position.set(pos);
 	}
 
+	pub fn to_string(&self) -> String {
+		self.position.get().to_string() + &" " + &self.scale.get().to_string() + &" " + &self.speed.get().to_string()
+	}
+
 	pub fn collision(&self, other: &CPhysicalObject) {
 
 	}

@@ -22,7 +22,9 @@ pub struct CRenderObject {
 	pub index_buffer:  glium::index::IndexBuffer<u32>,
 
 	pub texture:  Rc<CTexture>,
-	pub program:  Rc<CProgram>
+	pub program:  Rc<CProgram>,
+
+	pub model_name: String,
 }
 
 impl CRenderObject {
@@ -34,7 +36,8 @@ impl CRenderObject {
    	 	CRenderObject{ vertex_buffer: new_vertex_buffer, 
    	 				   index_buffer:  new_index_buffer, 
    	 			       program:       program.clone(), 
-   	 			       texture:       texture.clone(), }
+   	 			       texture:       texture.clone(),
+   	 			       model_name:    mdl.name.clone(), }
 	}      
 
 	pub fn draw(&self, mut target: &mut MultiOutputFrameBuffer, PM: &Matrix4D, VM: &Matrix4D, MM: &Matrix4D) {
@@ -55,5 +58,9 @@ impl CRenderObject {
 	    };
 	    		
 	    target.draw(&self.vertex_buffer, &self.index_buffer, self.program.prog_object(), &uniforms, &params).unwrap();
+	}
+
+	pub fn to_string(&self) -> String {
+		self.model_name.clone() + &" " + &self.texture.id.to_string()
 	}
 }

@@ -5,6 +5,8 @@ use math::{ Vector3D, Matrix4D};
 use std::time::{Duration, SystemTime};
 use geometry;
 use std::f64::consts;
+use std::fs::File;
+use std::io::prelude::*;
 
 use geometry::inters;
 use camera::CCamera;
@@ -33,6 +35,9 @@ use glium::backend::glutin_backend::GlutinFacade;
 use glium::{DisplayBuild, Surface, glutin};
 use glutin::ElementState::Pressed;
 use glutin::Event::{KeyboardInput, MouseInput};
+use std::io::BufReader;
+use std::f32;
+use std::str::FromStr;
 
 pub struct ChangedProperties {
     pub backgroundLightColor: Vector3D,
@@ -49,7 +54,6 @@ impl ChangedProperties {
 }
 
 pub struct CWorld {
-    PerspectiveMatrix: Matrix4D,
     Camera:            CCamera,
     Viewer:            Rc<CViewer>,
 
@@ -64,8 +68,7 @@ pub struct CWorld {
     lightprog:         Rc<CProgram>,
     dirlightprog:      Rc<CProgram>,
 
-    wallTexture:       Rc<CTexture>,
-    blockTexture:      Rc<CTexture>,
+    textures:              Vec<Rc<CTexture>>,
 
     timer:             SystemTime,
 }
@@ -75,14 +78,13 @@ impl CWorld {
         implement_vertex!(Vertex, position, tex_coord, normal);
         implement_vertex!(VertexPT, position, tex_coord);
 
-        let mut PerspectiveMatrix = Matrix4D::PerspectiveMatrix(60.0f32, winWidth as f32, winHeight as f32, 0.01, 100.0);
         let mut Camera = CCamera::new( Vector3D::new(0.0, -0.3, 3.0),
                                        Vector3D::new(0.0,  0.0, 1.0),
                                        Vector3D::new(0.0,  1.0, 0.0),
                                        winWidth, winHeight );
 
-        let texture = Rc::new( CTexture::load(display, "images/Wall.jpg") );
-        let block = Rc::new( CTexture::load(display, "images/Block.jpg") );
+        let texture = Rc::new( CTexture::load(display, 1, "images/Wall.jpg") );
+        let block = Rc::new( CTexture::load(display, 2, "images/Block.jpg") );
 
         let prog = Rc::new( CProgram::load(display, "Shaders/GBufferV.vs", "Shaders/GBufferF.fs") );
         let prog2 = Rc::new( CProgram::load(display, "Shaders/CompositionV.vs", "Shaders/CompositionF.fs") );
@@ -107,15 +109,15 @@ impl CWorld {
         cube2.set_scale(Vector3D::new(0.3, 0.3, 0.3));
         cube2.set_pos(Vector3D::new(-2.0, -0.35, -5.0));
 
-        let mut Viewer = Rc::new( CViewer::new( Vector3D::new(0.0, -0.3, 3.0)));
+        let mut Viewer = Rc::new( CViewer::new( Vector3D::new(0.0, -0.3, 3.0)) );
 
         Camera.SetOwner(Box::new(Viewer.clone()));
 
-        let floor = Rc::new( CGameObject::new(display, CModel::cube(Vector3D::new(500.0, 1.0, 500.0)), &texture, &prog) );
+        let floor = Rc::new( CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &texture, &prog) );
         floor.set_pos(Vector3D::new(0.0, -1.0, 0.0));
+        floor.set_scale(Vector3D::new(500.0, 1.0, 500.0));
 
-        CWorld { PerspectiveMatrix: PerspectiveMatrix,
-                 Camera:            Camera,
+        CWorld { Camera:            Camera,
                  Viewer:            Viewer.clone(),
 
                  objs:              vec![ cube1.clone(),
@@ -128,9 +130,9 @@ impl CWorld {
                  dirlights:         vec![ dirlight ],
                  changedProp:       ChangedProperties::new(),
 
+                 textures:          vec![ texture.clone(),
+                                          block.clone(), ], 
 
-                 wallTexture:       texture.clone(),
-                 blockTexture:      block.clone(),
                  prog:              prog.clone(),
                  prog2:             prog2.clone(),
                  lightprog:         lightprog.clone(),
@@ -146,7 +148,7 @@ impl CWorld {
         let CameraTrans = CameraRotateTrans * CameraTranslationTrans;
 
         for obj in &self.objs {
-            obj.draw(&mut gbuffer, &self.PerspectiveMatrix, &CameraTrans);
+            obj.draw(&mut gbuffer, &self.Camera.PerspectiveMatrix, &CameraTrans);
         }
     }
 
@@ -169,10 +171,10 @@ impl CWorld {
         for light in &self.lights {
             let uniforms = uniform! {
                 matrix:            render.orthomatrix,
-                light_pos:         light.pos,
-                light_color:       light.color,
-                light_attenuation: light.attenuation,
-                light_vector:      light.vector,
+                light_pos:         light.pos.as_arr(),
+                light_color:       light.color.as_arr(),
+                light_attenuation: light.attenuation.as_arr(),
+                light_vector:      light.vector.as_arr(),
                 light_range:       light.range,
                 light_maxradius:   light.maxradius,
                 pos_texture:       &render.pos_texture,
@@ -186,8 +188,8 @@ impl CWorld {
         for light in &self.dirlights {
             let uniforms = uniform! {
                 matrix:            render.orthomatrix,
-                light_color:       light.color,
-                light_vector:      light.vector,
+                light_color:       light.color.as_arr(),
+                light_vector:      light.vector.as_arr(),
                 pos_texture:       &render.pos_texture,
                 norm_texture:      &render.norm_texture,
             };
@@ -225,7 +227,7 @@ impl CWorld {
     }
 
     fn create_new_obj(&mut self, display: &GlutinFacade) {
-        self.objs.push(Rc::new( CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &self.blockTexture, &self.prog) ));
+        self.objs.push(Rc::new( CGameObject::new(display, CModel::cube(Vector3D::new(1.0, 1.0, 1.0)), &self.textures[1], &self.prog) ));
 
         let top = self.objs.len() - 1;
         let mut new_pos = self.Camera.GetPos() - self.Camera.target.projectionXOZ() * 5.0;
@@ -239,12 +241,103 @@ impl CWorld {
         self.objs[top].set_scale(Vector3D::new(0.3, 0.3, 0.3));
     }
 
+    fn save(&self, file_name: &str) {
+        let mut file = File::create(file_name).unwrap();
+
+        file.write(self.Viewer.save().as_bytes());
+        file.write(b"\r\n");
+
+        file.write(self.textures.len().to_string().as_bytes());
+        file.write(b" ");
+        file.write(self.objs.len().to_string().as_bytes());
+        file.write(b" ");
+        file.write(self.lights.len().to_string().as_bytes());
+        file.write(b" ");
+        file.write(self.dirlights.len().to_string().as_bytes());
+
+        for texture in &self.textures {
+            file.write(b"\r\n");
+            file.write(texture.save().as_bytes());
+        }
+
+        for obj in &self.objs {
+            file.write(b"\r\n");
+            file.write(obj.save().as_bytes());
+        }
+
+        for light in &self.lights {
+            file.write(b"\r\n");
+            file.write(light.save().as_bytes());
+        }
+
+        for dirlight in &self.dirlights {
+            file.write(b"\r\n");
+            file.write(dirlight.save().as_bytes());
+        }
+    }
+
+    fn load(&mut self, display: &GlutinFacade, fiel_name: &str) {
+        self.textures.clear();
+        self.lights.clear();
+        self.dirlights.clear();
+        self.objs.clear();
+
+        let mut file = File::open(fiel_name).unwrap();
+        let mut reader = BufReader::new(file);
+        
+        let mut line = String::new();
+
+        let len = reader.read_line(&mut line).unwrap();
+        self.Viewer.load(line.trim().into());
+
+        line.clear();
+        let len = reader.read_line(&mut line).unwrap();
+        let counts: Vec<&str> = line.trim().split(" ").collect();
+
+        let ct = f32::from_str(counts[0]).unwrap();
+        let co = f32::from_str(counts[1]).unwrap();
+        let cl = f32::from_str(counts[2]).unwrap();
+        let cdl = f32::from_str(counts[3]).unwrap();
+
+        for i in ( 0 .. (ct as i32) ) {
+            let mut line = String::new();
+            let len = reader.read_line(&mut line).unwrap();
+
+            let items: Vec<&str> = line.trim().split(" ").collect();
+            let path = items[0];
+            let id = f32::from_str(items[1]).unwrap() as i32;
+            let new_tex = Rc::new( CTexture::load(display, id, path) );
+            self.textures.push(new_tex);
+        }
+
+        for i in ( 0 .. (co as i32) ) {
+            let mut line = String::new();
+            let len = reader.read_line(&mut line).unwrap();
+            let new_obj = Rc::new( CGameObject::load(display, line.trim().into(), &self.textures, &self.prog) );
+            self.objs.push(new_obj);
+        }
+
+        for i in ( 0 .. (cl as i32) ) {
+            let mut line = String::new();
+            let len = reader.read_line(&mut line).unwrap();
+            let new_light = CLight::load(line.trim().into());
+            self.lights.push(new_light);
+        }
+
+        for i in ( 0 .. (cdl as i32) ) {
+            let mut line = String::new();
+            let len = reader.read_line(&mut line).unwrap();
+            let new_light = CDirectionLight::load(line.trim().into());
+            self.dirlights.push(new_light);
+        }
+    }
+
     fn create_new_lightsource(&mut self, display: &GlutinFacade) {
         self.lights.push(CLight::new());
 
         let top = self.lights.len() - 1;
-        self.lights[top].set_pos(self.Camera.GetPos().as_arr()); 
-        self.lights[top].set_color(self.changedProp.lightColor.as_arr());
+        self.lights[top].set_pos(self.Camera.GetPos()); 
+        self.lights[top].set_color(self.changedProp.lightColor);
     }
 
     pub fn checkEvents(&mut self, event: &glium::glutin::Event, display: &GlutinFacade) {
@@ -266,6 +359,12 @@ impl CWorld {
             },
             MouseInput(Pressed, glutin::MouseButton::Right) => {
                 self.create_new_lightsource(display);
+            },
+            KeyboardInput(Pressed,  _, Some(glutin::VirtualKeyCode::F5)) => {
+                self.save("save.txt");
+            },
+            KeyboardInput(Pressed,  _, Some(glutin::VirtualKeyCode::F6)) => {
+                self.load(display, "save.txt");
             },
             _ => ()
         }

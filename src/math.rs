@@ -126,6 +126,10 @@ impl Vector3D {
     	self
 	}
 
+	pub fn to_string(&self) -> String {
+		self.x.to_string() + &" " + &self.y.to_string() + &" " + &self.z.to_string()
+	}
+
 	pub fn rotate(&mut self, angle: f32, axis: &Vector3D) {
 		let mut quaternion = Quaternion{ a: (angle / 2.0 * (consts::PI as f32) / 180.0 ).cos(), vector: *axis * (angle / 2.0 * (consts::PI as f32) / 180.0 ).sin() };
 
